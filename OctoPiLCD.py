@@ -34,6 +34,11 @@ class DisplayLCD(object):
         self.lcd.clear()
         self.lcd.set_color(pData.colorR, pData.colorG, pData.colorB)
         self.lcd.message(pData.message)
+    
+    def sayGoodbye(self):
+        self.lcd.clear()
+        self.lcd.set_color(0,0,0)
+        self.lcd.message("Done Printing")
 
 class PrintData(object):
     # Setup Octopi API Interaction                               
@@ -49,6 +54,7 @@ class PrintData(object):
     colorG = 0.0
     colorB = 0.0
     message = 'No Message'
+    printing = True
 
     def __init__(self, key):
         # Nothing to do
@@ -56,17 +62,22 @@ class PrintData(object):
                               'Content-Type': 'application/json'}
 
     def updatePrintData(self):
-        file_response = requests.get(self.file_endpoint, headers=self.query_headers)
-        file_data = file_response.json()
+        #file_response = requests.get(self.file_endpoint, headers=self.query_headers)
+        #file_data = file_response.json()
         job_response = requests.get(self.job_endpoint, headers=self.query_headers)
         job_data = job_response.json()
 
         # Relevant paramters for simple retrieving
         self.remain = job_data['progress']['printTimeLeft']
-        self.fileName = file_data['files'][0]['name']
+        self.fileName = job_data['job']['file']['name']
         self.printTime = job_data['progress']['printTime']
         self.completion = job_data['progress']['completion']
-
+    def checkPrinter(self):
+        if isinstance(self.completion, NoneType):
+            return False
+        if self.completion < 100.0:
+            return True
+        
     def getRemain(self):
         if isinstance(self.remain, int):
             return time.strftime("%H:%M:%S", time.gmtime(self.remain))
@@ -102,7 +113,8 @@ pData = PrintData(key)
 dLCD = DisplayLCD()
 test = True
 
-while pData.completion < 1:
+while pData.checkPrinter():
+
     pData.updatePrintData()
 
     if test:
@@ -115,6 +127,6 @@ while pData.completion < 1:
     dLCD.updateDisplay(pData)
     sleep(5)
 
-
+dLCD.sayGoodbye()
 
 
