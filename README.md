@@ -31,8 +31,14 @@ Step 3:
   in nano: ^X to exit, Y to save, Enter to confirm name
 
 Step 4:
-  Edit ~/.octoprint/config.yaml and add the following:
-    event: PrintStarted
+  Edit ~/.octoprint/config.yaml 
+  If you don't have events add the following to the end of the file:
+  Otherwise just add the PrintStarted Event
+  
+  events:
+    enabled: True
+    subscriptions:
+    - event: PrintStarted
       command: python ~/OctoPiLCD/OctoPiLCD.py
       type: system
 
