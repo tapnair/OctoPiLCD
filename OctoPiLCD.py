@@ -1,4 +1,5 @@
-# Updated from MAc local v2
+# OctoPiLCD
+# Script for connecting an LCD display to Octoprint
 
 import requests
 from time import sleep
