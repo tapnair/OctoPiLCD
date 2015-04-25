@@ -39,13 +39,13 @@ class DisplayLCD(object):
     def sayGoodbye(self):
         self.lcd.clear()
         self.lcd.set_color(0,0,0)
-        self.lcd.message("Done Printing")
 
 class PrintData(object):
     # Setup Octopi API Interaction                               
     post_params = {}
     file_endpoint = 'http://octopi.local/api/files'
     job_endpoint = 'http://octopi.local/api/job'
+    printer_endpoint = 'http://octopi.local/api/printer'
     
     remain = 0
     fileName = 'None'
@@ -56,6 +56,8 @@ class PrintData(object):
     colorB = 0.0
     message = 'No Message'
     printing = True
+    toolTemp = 0.0
+    bedTemp = 0.0
 
     def __init__(self, key):
         # Nothing to do
@@ -73,6 +75,14 @@ class PrintData(object):
         self.fileName = job_data['job']['file']['name']
         self.printTime = job_data['progress']['printTime']
         self.completion = job_data['progress']['completion']
+        
+        # Get Printer Data, only works if printer is connected
+        printer_response = requests.get(self.printer_endpoint, headers=self.query_headers)
+        printer_data = printer_response.json()
+        print (printer_data)
+        self.toolTemp = printer_data['temps']['tool1']['actual']
+        self.bedTemp = printer_data['temps']['bed']['actual']
+        
     def checkPrinter(self):
         if isinstance(self.completion, NoneType):
             return False
@@ -96,7 +106,19 @@ class PrintData(object):
             return 'None'
         else:
             return "%0.2f" % (self.completion)
-
+    
+    def getToolTemp(self):
+        if isinstance(self.toolTemp, NoneType):
+            return 'N/A'
+        else:
+            return "%0.2f" % (self.toolTemp)
+            
+    def getBedTemp(self):
+        if isinstance(self.bedTemp, NoneType):
+            return 'N/A'
+        else:
+            return "%0.2f" % (self.bedTemp)
+            
     def setMessage1(self):
         self.message = "File: " + self.fileName + '\n' + "Cmpltd: " + self.getCompletion() + '%'
         self.colorR = 1.0
@@ -108,26 +130,42 @@ class PrintData(object):
         self.colorR = 0.0
         self.colorG = 1.0
         self.colorB = 1.0
-
+    
+    def setMessage3(self):
+        self.message = "Tool: " + self.getToolTemp() + '\n' + "Bed: " + self.getBedTemp()
+        self.colorR = 0.0
+        self.colorG = 0.0
+        self.colorB = 1.0
 
 pData = PrintData(key)
 dLCD = DisplayLCD()
-test = True
+test = 0
 
 while pData.checkPrinter():
 
     pData.updatePrintData()
 
-    if test:
+    if test == 0:
         pData.setMessage1()
-        test = False
-    else:
+        test = 1
+    elif test == 1:
         pData.setMessage2()
-        test = True
-
+        test = 2
+    else:
+        pData.setMessage3()
+        test = 0
+    
     dLCD.updateDisplay(pData)
     sleep(5)
 
-dLCD.sayGoodbye()
+while (pData.toolTemp > 50.0) & (pData.bedTemp > 30.0):
+    
+    pData.updatePrintData()
+    
+    pData.setMessage3()
+    
+    dLCD.updateDisplay(pData)
+    sleep(1)
 
+dLCD.sayGoodbye()
 
