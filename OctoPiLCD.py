@@ -79,9 +79,10 @@ class PrintData(object):
         # Get Printer Data, only works if printer is connected
         printer_response = requests.get(self.printer_endpoint, headers=self.query_headers)
         printer_data = printer_response.json()
-        print (printer_data)
-        self.toolTemp = printer_data['temps']['tool1']['actual']
+        self.toolTemp = printer_data['temps']['tool0']['actual']
+        self.toolTarget = printer_data['temps']['tool0']['target']
         self.bedTemp = printer_data['temps']['bed']['actual']
+        self.bedTarget = printer_data['temps']['bed']['target']
         
     def checkPrinter(self):
         if isinstance(self.completion, NoneType):
@@ -111,13 +112,13 @@ class PrintData(object):
         if isinstance(self.toolTemp, NoneType):
             return 'N/A'
         else:
-            return "%0.2f" % (self.toolTemp)
+            return "%0.1f" % (self.toolTemp) + '/' + "%0.1f" % (self.toolTarget)
             
     def getBedTemp(self):
         if isinstance(self.bedTemp, NoneType):
             return 'N/A'
         else:
-            return "%0.2f" % (self.bedTemp)
+            return "%0.1f" % (self.bedTemp) + '/' + "%0.1f" % (self.bedTarget)
             
     def setMessage1(self):
         self.message = "File: " + self.fileName + '\n' + "Cmpltd: " + self.getCompletion() + '%'
@@ -132,7 +133,7 @@ class PrintData(object):
         self.colorB = 1.0
     
     def setMessage3(self):
-        self.message = "Tool: " + self.getToolTemp() + '\n' + "Bed: " + self.getBedTemp()
+        self.message = "Tmp: " + self.getToolTemp() + '\n' + "Bed: " + self.getBedTemp()
         self.colorR = 0.0
         self.colorG = 0.0
         self.colorB = 1.0
@@ -158,7 +159,7 @@ while pData.checkPrinter():
     dLCD.updateDisplay(pData)
     sleep(5)
 
-while (pData.toolTemp > 50.0) & (pData.bedTemp > 30.0):
+while (pData.toolTemp > 50.0) | (pData.bedTemp > 30.0):
     
     pData.updatePrintData()
     
