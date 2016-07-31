@@ -18,7 +18,7 @@ Step 1:
   https://learn.adafruit.com/character-lcd-with-raspberry-pi-or-beaglebone-black/usage
   Install AdaFruit CHAR_LCD libraries as shown in tutorial as well.
   You can type this at a command prompt:
-  pip install requests Adafruit_CharLCD
+  pip install requests ez_setup Adafruit_CharLCD
   
 Step 2:
   Open octoprint web interface.  
