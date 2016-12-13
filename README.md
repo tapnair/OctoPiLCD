@@ -22,32 +22,26 @@ Here are the steps to set it up:
   
   You can type this at a command prompt:
   
-  pip install requests ez_setup Adafruit_CharLCD
+  `pip install requests ez_setup Adafruit_CharLCD`
   
 ### Step 2:
-  Open octoprint web interface.  
-  
-  Select Settings->API
-  
-  Select enable
-  
-  Copy the Key
+
+Open octoprint web interface.  
+  - Select Settings->API 
+  - Select enable  
+  - Copy the Key
 
 ### Step 3:
-  On PI
-  
-  Edit OctoPiLCD.py ( from shell: nano OctoPiLCD.py)
-  
-  On line 10 paste the value from above into key = 'Your key here'
-  
-  in nano: ^X to exit, Y to save, Enter to confirm name
+  Connect to filesystem on PI (ssh or other method)
+  - Edit OctoPiLCD.py ( from shell: nano OctoPiLCD.py)
+  - On line 10 paste the value from above into key = 'Your key here'
+  - In nano: ^X to exit, Y to save, Enter to confirm name
 
 ### Step 4:
-  Edit ~/.octoprint/config.yaml 
-  
-  If you don't have events add the following to the end of the file:
-  
-  Otherwise just add the PrintStarted Event:
+ Connect to filesystem on PI (ssh or other method)
+  - Edit ~/.octoprint/config.yaml 
+  - If you don't have events add the following to the end of the file:
+  - Otherwise just add the PrintStarted Event:
   
   ```
   events:
